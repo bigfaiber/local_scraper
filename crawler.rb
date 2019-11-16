@@ -18,17 +18,34 @@ require 'webdrivers'
 		p 'calculando trm'
 		a =  Time.now
 		page = scrape_page(SETFX_USD_TRM_URL)
-		browser = Watir::Browser.start('http://www.set-fx.com/index.html', browser = :chrome, headless: true)
-		Watir::Wait.until(timeout: 300) {browser.element(css: "#barraTuristaPromedio").text.include? '$'}
+		browser = Watir::Browser.start('http://www.set-fx.com/index.html', browser = :firefox)
+		begin
+			Watir::Wait.until(timeout: 10) {browser.element(css: "#barraTuristaPromedio").text.include? '$'}
+		rescue Watir::Wait::TimeoutError => e
+			p e
+		end
+		live_trm = browser.element(css: "#barraTuristaPromedio").text
+		day_trm = browser.element(css: "#trmPrice").text
+		p live_trm
+		p day_trm
 		p 'trm calculada'
 		b = Time.now
 		p "#{b - a} seconds"
-		trm = browser.element(css: "#barraTuristaPromedio").text[2..].delete(',').to_f
+		live_trm.empty? ? trm = day_trm.delete('.').to_f : trm = browser.element(css: "#barraTuristaPromedio").text[2..]&.delete(',').to_f
+		# trm = browser.element(css: "#barraTuristaPromedio").text[2..]&.delete(',').to_f || browser.element(css: "#trmPrice").text[2..].delete(',').to_f
+		byebug
+		trm
 	end
 		
 	# end
 	
-
+	def get_trm
+		trm = HTTParty.post("https://arses-currency-exchange1.p.rapidapi.com/getRealTimeCurrencyRate/COP/", 
+		headers: {"x-rapidapi-host": "arses-currency-exchange1.p.rapidapi.com",
+		"x-rapidapi-key": "77a8ff910fmshc138d14fb3cf3cdp160c46jsn220e7871ac0e",
+		"content-type": "application/x-www-form-urlencoded"})
+		trm.parsed_response['detail']['USD']['cop-per-unit'].to_f.round(2)
+	end
 
 	def get_quick_sell_offers
 		page = scrape_page(LOCAL_BITCOINS_COP_QUICK_SELL_URL)
@@ -41,7 +58,8 @@ require 'webdrivers'
 	end
 	
 	def calculate
-		@TRM = get_usd_trm
+		@TRM = get_trm
+		p @TRM
 		cop_offers = get_quick_sell_offers
 		usd_offers = get_quick_buy_offers
 		p "Best offer in COP today is #{cop_offers.first}"
