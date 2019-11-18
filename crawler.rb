@@ -47,6 +47,11 @@ require 'webdrivers'
 		trm.parsed_response['detail']['USD']['cop-per-unit'].to_f.round(2)
 	end
 
+	def get_btc_in_usd
+		response = HTTParty.get("https://localbitcoins.com/api/equation/btc_in_usd")
+		btc_in_usd = response.parsed_response['data'].to_f
+	end
+
 	def get_quick_sell_offers
 		page = scrape_page(LOCAL_BITCOINS_COP_QUICK_SELL_URL)
     ofertas = page.css('td.column-price').map{|o| o.children.text.strip[0...-4].delete(',').to_f/@TRM}
@@ -59,12 +64,16 @@ require 'webdrivers'
 	
 	def calculate
 		@TRM = get_trm
-		p @TRM
+		@Bitstamp = get_btc_in_usd
+		p "TRM = #{@TRM}"
+		p "Bitstamp = #{@Bitstamp}"
 		cop_offers = get_quick_sell_offers
 		usd_offers = get_quick_buy_offers
-		p "Best offer in COP today is #{cop_offers.first}"
-		p "Best offer in USD today is #{usd_offers.first}"
-		p "Spread for today is: #{((usd_offers.first/cop_offers.first).round(2)-1)*100}%"
+		best_cop = cop_offers.first.round(2)
+		best_usd = usd_offers.first.round(2)
+		p "Best offer in COP today is #{best_cop}: #{((@Bitstamp/best_cop -1)*100).round(2)}% "
+		p "Best offer in USD today is #{best_usd}: #{((best_usd/@Bitstamp -1)*100).round(2)}%"
+		p "Spread for today is: #{((best_usd/best_cop-1)*100).round(2)}%"
 	end
 	
 	# private 
