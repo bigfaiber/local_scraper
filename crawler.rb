@@ -65,6 +65,7 @@ require 'webdrivers'
 	def calculate
 		@TRM = get_trm
 		@Bitstamp = get_btc_in_usd
+		p Time.now
 		p "TRM = #{@TRM}"
 		p "Bitstamp = #{@Bitstamp}"
 		cop_offers = get_quick_sell_offers
