@@ -3,6 +3,7 @@ require 'nokogiri'
 require 'byebug'
 require 'watir'
 require 'webdrivers'
+require 'pry'
 
 # class BtcScraper
 
@@ -54,7 +55,9 @@ require 'webdrivers'
 
 	def get_quick_sell_offers
 		page = scrape_page(LOCAL_BITCOINS_COP_QUICK_SELL_URL)
-    ofertas = page.css('td.column-price').map{|o| o.children.text.strip[0...-4].delete(',').to_f/@TRM}
+
+		filas = page.css('tr.clickable')
+		ofertas = filas.css('tr').map{ |f| f.css('td.column-price').text.strip[0...-4].delete(',').to_f/@TRM if f.css('td')[1].text.downcase.match?(/bancolombia|davivienda|nequi/)}.compact   
   end
 
   def get_quick_buy_offers

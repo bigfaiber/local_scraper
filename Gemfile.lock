@@ -13,6 +13,8 @@ GEM
     multi_xml (0.6.0)
     nokogiri (1.10.5)
       mini_portile2 (~> 2.4.0)
+    nokogiri (1.10.5-x64-mingw32)
+      mini_portile2 (~> 2.4.0)
     regexp_parser (1.6.0)
     rubyzip (2.0.0)
     selenium-webdriver (3.142.6)
@@ -28,6 +30,7 @@ GEM
 
 PLATFORMS
   ruby
+  x64-mingw32
 
 DEPENDENCIES
   byebug
