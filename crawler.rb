@@ -67,7 +67,7 @@ require 'pry'
 	def get_offers page
 		filas = page.css('tr.clickable')
 		ofertas = filas.css('tr').map{ |f| f.css('td.column-price').text.strip[0...-4].delete(',').to_f/@TRM if f.css('td')[1].text.downcase.match?(/bancolombia|davivienda|nequi/) &&
-																			 f.css('td.column-limit').text.strip[-13...-4].delete(',').to_f >= 1000000}.compact
+																			 f.css('td.column-limit').text.match(/(?-) (\d+,*\d*,*\d*)/)[1].delete(',').to_f >= 1000000}.compact
 	end
 
   def get_quick_buy_offers
