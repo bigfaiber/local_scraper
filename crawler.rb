@@ -67,7 +67,9 @@ require 'pry'
 	def get_offers page
 		filas = page.css('tr.clickable')
 		ofertas = filas.css('tr').map{ |f| f.css('td.column-price').text.match(/(\d+,*\d*,*\d*)/)[1].delete(',').to_f/@TRM if f.css('td')[1].text.downcase.match?(/bancolombia|davivienda|nequi/) &&
-																			 f.css('td.column-limit').text.match(/(?-) (\d+,*\d*,*\d*)/)[1].delete(',').to_f >= 1000000}.compact
+																			 f.css('td.column-limit').text.match(/(-|least) (\d+,*\d*,*\d*)/).captures.last.delete(',').to_f >= 1000000}.compact
+
+		ofertas
 	end
 
   def get_quick_buy_offers
@@ -84,6 +86,7 @@ require 'pry'
 		cop_offers = get_quick_sell_offers
 		quick_buy_offers = get_quick_buy_cop_offers
 		usd_offers = get_quick_buy_offers
+
 		best_cop = cop_offers.first.round(2)
 		best_buy_cop = quick_buy_offers.first.round(2)
 		best_usd = usd_offers.first.round(2)
