@@ -46,7 +46,14 @@ require 'pry'
 		headers: {"x-rapidapi-host": "arses-currency-exchange1.p.rapidapi.com",
 		"x-rapidapi-key": "77a8ff910fmshc138d14fb3cf3cdp160c46jsn220e7871ac0e",
 		"content-type": "application/x-www-form-urlencoded"})
-		trm.parsed_response['detail']['USD']['cop-per-unit'].to_f.round(2)
+		trm.parsed_response['detail']['USD']['cop-per-unit'].to_f.round(2) if trm.parsed_response['detail'] && trm.parsed_response['detail']['USD']['cop-per-unit']
+	end
+
+	def get_trm_fallback
+		trm = HTTParty.get("https://currency-exchange.p.rapidapi.com/exchange?from=USD&to=COP", 
+			headers: {"x-rapidapi-host": "currency-exchange.p.rapidapi.com",
+			"x-rapidapi-key": "77a8ff910fmshc138d14fb3cf3cdp160c46jsn220e7871ac0e",
+			"content-type": "application/x-www-form-urlencoded"}).to_f
 	end
 
 	def get_btc_in_usd
@@ -79,6 +86,9 @@ require 'pry'
 	
 	def calculate
 		@TRM = get_trm
+		unless @TRM
+			@TRM = get_trm_fallback
+		end
 		@Bitstamp = get_btc_in_usd
 		p Time.now
 		p "TRM = #{@TRM}"
